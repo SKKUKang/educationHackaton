@@ -32,12 +32,38 @@ def find_journalist_in_json(press_code, journalist_name):
         print(f"{press_code}_journalists.json 파일을 찾을 수 없습니다.")
         return None
 
+def get_article_text(url):
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Parse the HTML content
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Find the article element
+        article = soup.find('article')
+        
+        # Check if the article exists
+        if article:
+            # Extract all text from the article
+            article_text = article.get_text(separator='\n', strip=True)
+            print("기사 본문:")
+            print(article_text)
+        else:
+            print("Article not found.")
+    else:
+        print("Failed to retrieve the page. Status code:", response.status_code)
+
+
+
+
 # 테스트
 press_name = input("언론사 이름을 입력하세요: ")
 code = get_press_code(press_name)
 
 if code:
-    print(f"{press_name}의 코드: {code}")
+    print("언론사가 정상적으로 입력되었습니다")
     journalist_name = input("기자 이름을 입력하세요: ")
     
     journalist_url = find_journalist_in_json(code, journalist_name)
@@ -108,9 +134,31 @@ news_items = soup.find_all('a', class_='press_edit_news_link')
 
 count=0
     # Extract title and URL for each news item
+
+
+titleURL = []
 for item in news_items:
     title = item.find('span', class_='press_edit_news_title').text
     url = item['href']
     print(f'제목: {title}')
     print(f'url: "{url}"')
     print()  # Print a blank line between items
+    #title과 url을 mapping 하여 저장
+    titleURL.append((title, url))
+
+for i in range(len(titleURL)):
+    get_article_text(titleURL[i][1])
+    print()
+    print()
+      # Print a blank line between items
+
+
+
+
+
+
+
+
+
+
+
